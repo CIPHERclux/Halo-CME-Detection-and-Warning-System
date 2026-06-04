@@ -86,32 +86,6 @@ flowchart TD
 - Multi-dimensional anomaly detection
 - Monte Carlo Uncertainty Estimation
 
----
-
-## Physics-Informed Feature Engineering
-
-### 1. Plasma Beta (β)
-
-The ratio of thermal to magnetic pressure. A CME shock front compresses the interplanetary magnetic field, causing a sharp drop in plasma beta, making it a key discriminator between magnetized and thermally-dominated plasma states.
-
-### 2. Alfven Speed and Mach Numbers
-
-A CME can only form a shockwave if it travels faster than the local signal speeds of the medium. For a true shock to exist, the flow must satisfy both conditions: super-Alfvenic (M_A > 1) and supersonic (M_s > 1).
-
-### 3. Cross-Entropy Analysis
-
-Particle distributions become anisotropic near a shock front. This creates a measurable statistical divergence between inner and outer detector bins. CME-driven shocks are identified by strong directional asymmetry in these distributions.
-
-### 4. Rankine-Hugoniot (RH) Conditions
-
-Density, temperature, and magnetic field must increase across a true shock. Our labeling system requires a downstream-to-upstream density ratio greater than 1.5 for a shock to qualify as RH-confirmed.
-
-### 5. Mahalanobis Distance
-
-Operates on the full 4D plasma state vector x = [V, ρ, T, B]. Measures the statistical distance of a point from the background distribution, accounting for correlations between variables. A high score flags a plasma state that is anomalous across all parameters simultaneously, not just in a single variable.
-
----
-
 ## Prototype Validation
 
 Both features were validated on real Aditya-L1 data from ISSDC over a 72-hour window (October 8-10, 2024), a period containing known geomagnetic disturbances.
@@ -140,29 +114,6 @@ The CNN-LSTM-Attention model was trained on one month of solar wind data from Au
 **Stack:** Python 3.8+, Google Colab, Pandas, NumPy, Matplotlib, TensorFlow, Keras
 
 **Model Architecture:** The final deep learning model is a CNN-LSTM-Attention hybrid. The CNN layer identifies key local patterns such as shock spikes. The LSTM layer captures the temporal evolution of these patterns. The Attention layer focuses the model on the most critical moments within each sequence.
-
-**Anomaly Detection:** Dynamic thresholding via Rolling IQR, Mahalanobis Distance for full plasma vector space anomaly detection, and Monte Carlo Dropout for per-alert confidence scoring.
-
-**Failed Approaches (documented for reproducibility):**
-- Simple linear model — insufficient for non-linear plasma dynamics
-- Logistic Regression — analyzed each timestep independently, missing temporal structure
-- XGBoost — overfit to noise rather than learning the underlying physical sequence
-- Fixed Thresholds — failed to generalize across varying solar wind conditions
-- Single-Variable Checks — ignored correlations between density, velocity, and temperature
-
----
-
-## Planned Improvements
-
-| Improvement | Problem in Current Model | Proposed Solution |
-|---|---|---|
-| Physics-Calibrated Labeling | Labels based on hardcoded density thresholds; ignores temperature and magnetic jumps | Dynamic thresholds based on Mahalanobis zones and gradient spikes; full shock physics (ρ, T, B) |
-| Smart Shock Response Logic | Persistence checks are fixed; cannot adapt to spike severity | Make persistence dynamic based on flux jump magnitude |
-| Directional Anisotropy Integration | Directional flux data underused; cross-entropy not fully integrated into alert logic | Feed directional entropy directly into alert pipeline; combine temporal and spatial energy patterns |
-| Geo-Effectiveness Risk Index | Alerts stop at shock detected with no link to real-world effects | Estimate post-shock Bz evolution; output a geoeffectiveness score based on Bz duration and depth |
-| Dynamic Persistence | Persistence check waits a fixed number of steps regardless of event strength | Instant alert for strong spikes (100x flux, 1-step trigger); longer wait for weaker spikes (5x flux, 4-5 steps) |
-
----
 
 ## Directory Structure
 
